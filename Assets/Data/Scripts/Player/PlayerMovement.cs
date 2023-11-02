@@ -12,10 +12,14 @@ public class PlayerMovement : MonoBehaviour
 
     //Fields
     [SerializeField]
-    private float _velocity;
+    private float _velocityKof;
     [SerializeField]
-    private float _jumpForce;
-    private bool _isGrounded;
+    private float _jumpForceKof;
+    [SerializeField]
+    private float _overlapRadiusKof = 1f;
+
+    private bool _isGrounded = false;
+    private bool _isWallTouch = false;
 
     public void Initialize()
     {
@@ -24,31 +28,57 @@ public class PlayerMovement : MonoBehaviour
         _playerCollider = GetComponent<CapsuleCollider2D>();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void CollisionCheck()
     {
-        string layer = collision.gameObject.layer.ToString();
-        _isGrounded = (layer == "Ground");
-        Debug.Log(_isGrounded);
+        bool isGrounded = false;
+        bool isWallTouch = false;
+
+        float radius = _overlapRadiusKof;
+        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, radius);
+
+        int groundLayerIndex = 6;
+        int wallLayerIndex = 7;
+        foreach (Collider2D col in collider)
+        {
+            isGrounded = (col.gameObject.layer == groundLayerIndex);
+            isWallTouch = (col.gameObject.layer == wallLayerIndex);
+        }
+
+        _isGrounded = isGrounded;
+        _isWallTouch = isWallTouch;
     }
 
-    private void IsGrounded()
+
+    private void Run()
     {
+        Vector3 direction = transform.right * Input.GetAxis("Horizontal");
+
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, Time.deltaTime * _velocityKof);
     }
 
     private void Jump()
     {
-        if (!_isGrounded) return;
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if(_isWallTouch == false)
         {
-            _rb.AddForce((Vector2.up * _jumpForce) * Time.deltaTime);
+            _rb.AddForce(transform.up * _jumpForceKof, ForceMode2D.Impulse);
+        }
+
+        else if (_isWallTouch == true)
+        {
+            //_rb.AddForce(transform)
         }
     }
 
     #region Monobehaviour
     private void Update()
     {
-        Jump();
+        CollisionCheck();
+
+        if (Input.GetButton("Horizontal"))
+            Run();
+
+        if (_isGrounded && Input.GetButtonDown("Jump"))
+            Jump();
     }
 
     #endregion

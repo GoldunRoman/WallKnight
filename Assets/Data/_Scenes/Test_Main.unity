@@ -607,10 +607,10 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 4.78
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 8.8
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -669,8 +669,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6f637b25b57bb40bb4f03afcdd1eba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _velocity: 0
-  _jumpForce: 50.31
+  _velocityKof: 12
+  _jumpForceKof: 130
+  _overlapRadiusKof: 1
 --- !u!1 &1916292053
 GameObject:
   m_ObjectHideFlags: 0
