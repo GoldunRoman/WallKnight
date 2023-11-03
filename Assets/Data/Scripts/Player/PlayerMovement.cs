@@ -16,10 +16,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float _jumpForceKof;
     [SerializeField]
+    private float _wallJumpKof;
+    [SerializeField]
     private float _overlapRadiusKof = 1f;
+
+    private float _maxSpeed = 10f;
+    private Vector2 _currentVelocity;
+    [SerializeField]
+    private float _smoothTime = 0.2f;
 
     private bool _isGrounded = false;
     private bool _isWallTouch = false;
+
+
 
     public void Initialize()
     {
@@ -40,8 +49,14 @@ public class PlayerMovement : MonoBehaviour
         int wallLayerIndex = 7;
         foreach (Collider2D col in collider)
         {
-            isGrounded = (col.gameObject.layer == groundLayerIndex);
-            isWallTouch = (col.gameObject.layer == wallLayerIndex);
+            if (col.gameObject.layer == groundLayerIndex)
+            {
+                isGrounded = true;
+            }
+            if (col.gameObject.layer == wallLayerIndex)
+            {
+                isWallTouch = true;
+            }
         }
 
         _isGrounded = isGrounded;
@@ -51,34 +66,49 @@ public class PlayerMovement : MonoBehaviour
 
     private void Run()
     {
-        Vector3 direction = transform.right * Input.GetAxis("Horizontal");
+        float moveInput = Input.GetAxis("Horizontal");
 
-        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, Time.deltaTime * _velocityKof);
+        Vector2 velocity = _rb.velocity;
+        float verticalVelocity = velocity.y;
+
+        float targetHorizontalVelocity = Mathf.Clamp(moveInput * _velocityKof, -_maxSpeed, _maxSpeed);
+
+        _rb.velocity = new Vector2(targetHorizontalVelocity, verticalVelocity);
     }
+
 
     private void Jump()
     {
-        if(_isWallTouch == false)
-        {
-            _rb.AddForce(transform.up * _jumpForceKof, ForceMode2D.Impulse);
-        }
+        _rb.AddForce(transform.up * _jumpForceKof, ForceMode2D.Impulse);
 
-        else if (_isWallTouch == true)
+
+        if (_isWallTouch == true)
         {
-            //_rb.AddForce(transform)
+            _rb.AddForce(transform.right * Input.GetAxis("Horizontal") * -1 * (_jumpForceKof * 2), ForceMode2D.Impulse);
         }
     }
+
 
     #region Monobehaviour
     private void Update()
     {
         CollisionCheck();
+        Debug.Log($"Velocity = {_rb.velocity}");
+        Debug.Log($"IsGrounded = {_isGrounded}");
+        
+
 
         if (Input.GetButton("Horizontal"))
             Run();
 
+
+
         if (_isGrounded && Input.GetButtonDown("Jump"))
             Jump();
+        else if(_isWallTouch && Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
     }
 
     #endregion
