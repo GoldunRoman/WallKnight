@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float _overlapRadiusKof = 1f;
 
+    [SerializeField]
     private float _maxSpeed = 10f;
     private Vector2 _currentVelocity;
     [SerializeField]
@@ -76,15 +77,28 @@ public class PlayerMovement : MonoBehaviour
         _rb.velocity = new Vector2(targetHorizontalVelocity, verticalVelocity);
     }
 
+    private void FlipCharacter()
+    {
+        float moveInput = Input.GetAxis("Horizontal");
+        if (moveInput > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else if (moveInput < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+
 
     private void Jump()
     {
         _rb.AddForce(transform.up * _jumpForceKof, ForceMode2D.Impulse);
 
 
-        if (_isWallTouch == true)
+        if (_isWallTouch)
         {
-            _rb.AddForce(transform.right * Input.GetAxis("Horizontal") * -1 * (_jumpForceKof * 2), ForceMode2D.Impulse);
+            _rb.AddForce(transform.right * Input.GetAxis("Horizontal") * -1 * _jumpForceKof, ForceMode2D.Impulse);
         }
     }
 
@@ -101,13 +115,15 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButton("Horizontal"))
             Run();
 
+        FlipCharacter();
 
 
-        if (_isGrounded && Input.GetButtonDown("Jump"))
-            Jump();
-        else if(_isWallTouch && Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump"))
         {
-            Jump();
+            if(_isGrounded || _isWallTouch)
+            {
+                Jump();
+            }
         }
     }
 

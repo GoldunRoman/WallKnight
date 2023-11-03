@@ -1283,6 +1283,7 @@ MonoBehaviour:
   _jumpForceKof: 130
   _wallJumpKof: 42
   _overlapRadiusKof: 1
+  _maxSpeed: 17.06
   _smoothTime: 0.2
 --- !u!1 &1916292053
 GameObject:
